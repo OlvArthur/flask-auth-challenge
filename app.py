@@ -61,5 +61,32 @@ def create_meal():
 
   return jsonify({'message': 'Meal successfully created'})
 
+
+@app.route('/meals/<int:id>', methods=['PUT'])
+def update_meal(id):
+  data = request.get_json()
+
+  found_meal = Meal.query.get(id)
+
+  if not found_meal:
+    return jsonify({'message': 'Meal not found'})
+  
+  if current_user.id != found_meal.user_id:
+    return jsonify({'message': 'You can not update other people`s meals'})
+
+  new_name = data.get('name')
+  new_description = data.get('description')
+  new_eaten_at = data.get('eaten_at') or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+  new_is_in_diet = data.get('is_in_diet')
+
+  found_meal.name = new_name or found_meal.name
+  found_meal.description = new_description or found_meal.description
+  found_meal.eaten_at = new_eaten_at or found_meal.eaten_at
+  found_meal.is_in_diet = new_is_in_diet or found_meal.is_in_diet
+
+  db.session.commit()
+
+  return jsonify({'message': 'Meal successfully updated'})
+
 if __name__=='__main__':
   app.run(debug=True)
