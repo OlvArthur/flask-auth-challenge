@@ -8,3 +8,12 @@ class Meal(db.Model):
   eaten_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
   is_in_diet = db.Column(db.Boolean())
   user_id = db.Column(db.Integer,  db.ForeignKey('user.id'))
+
+  def to_dict(self):
+    return {
+      'id': self.id,
+      'name': self.name,
+      'description': self.description,
+      'eated_at': self.eaten_at,
+      'is_in_diet': self.is_in_diet,
+    }

@@ -137,5 +137,14 @@ def update_meal(id):
 
   return jsonify({'message': 'Meal successfully updated'})
 
+@app.route('/meals', methods=['GET'])
+def list_meals():
+  
+  user_meals: list[Meal] = Meal.query.filter_by(user_id=current_user.id)
+
+  dict_meals_list = [meal.to_dict() for meal in user_meals]
+
+  return jsonify({'meals': dict_meals_list})
+
 if __name__=='__main__':
   app.run(debug=True)
