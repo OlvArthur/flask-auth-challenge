@@ -4,7 +4,7 @@ from database import db
 from models.User import User
 from models.Meal import Meal
 from datetime import datetime
-from flask_login import LoginManager, current_user, login_user
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 
 
 app = Flask(__name__)
@@ -45,6 +45,12 @@ def login():
 
   return jsonify({'message': 'Successfull login'})
 
+@app.route('/logout',methods=['GET'])
+@login_required
+def logout():
+  logout_user()
+  return jsonify({'message': 'Successfully loged out'})
+
 @app.route('/users', methods=['POST'])
 def create_user():
   data = request.get_json()
@@ -71,6 +77,7 @@ def create_user():
   return jsonify({'message': 'User successfully created'})
 
 @app.route('/meals', methods=['POST'])
+@login_required
 def create_meal():
   data = request.get_json()
 
@@ -88,6 +95,7 @@ def create_meal():
 
 
 @app.route('/meals/<int:id>', methods=['PUT'])
+@login_required
 def update_meal(id):
   data = request.get_json()
 
