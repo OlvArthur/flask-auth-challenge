@@ -103,7 +103,7 @@ def delete_meal(id):
   meal_does_not_belong_to_user = found_meal.user_id != current_user.id
 
   if meal_does_not_belong_to_user:
-    return jsonify({'message': 'You are not allowed to delet other people`s meals'})
+    return jsonify({'message': 'You are not allowed to delete other people`s meals'})
   
   db.session.delete(found_meal)
   db.session.commit()
@@ -138,6 +138,7 @@ def update_meal(id):
   return jsonify({'message': 'Meal successfully updated'})
 
 @app.route('/meals', methods=['GET'])
+@login_required
 def list_meals():
   
   user_meals: list[Meal] = Meal.query.filter_by(user_id=current_user.id)
@@ -145,6 +146,21 @@ def list_meals():
   dict_meals_list = [meal.to_dict() for meal in user_meals]
 
   return jsonify({'meals': dict_meals_list})
+
+@app.route('/meals/<int:id>', methods=['GET'])
+@login_required
+def list_meal_by_id(id):
+  found_meal: Meal | None = Meal.query.get(id)
+
+  if not found_meal:
+    return jsonify({'message': 'Meal not found'}), 404
+  
+  meal_does_not_belong_to_user = found_meal.user_id != current_user.id
+
+  if meal_does_not_belong_to_user:
+    return jsonify({'message': 'You are not allowed to view other people`s meals'})
+  
+  return jsonify({'meal': found_meal.to_dict()})
 
 if __name__=='__main__':
   app.run(debug=True)
