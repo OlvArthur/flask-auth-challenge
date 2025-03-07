@@ -45,6 +45,31 @@ def login():
 
   return jsonify({'message': 'Successfull login'})
 
+@app.route('/users', methods=['POST'])
+def create_user():
+  data = request.get_json()
+
+  username = data.get('username')
+  password = data.get('password')
+
+  missing_credentials = not username or not password
+
+  if missing_credentials:
+    return jsonify({'message': 'Please provide username and password'}), 400
+
+  already_existent_username = User.query.filter_by(username=username).first()
+
+  if already_existent_username:
+    return jsonify({'message': 'Username already in use. Please choose another'})
+  
+  hashed_password = bcrypt.hashpw(str.encode(password), bcrypt.gensalt())
+  new_user = User(username=username, password=hashed_password)
+
+  db.session.add(new_user)
+  db.session.commit()
+
+  return jsonify({'message': 'User successfully created'})
+
 @app.route('/meals', methods=['POST'])
 def create_meal():
   data = request.get_json()
