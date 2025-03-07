@@ -93,6 +93,22 @@ def create_meal():
 
   return jsonify({'message': 'Meal successfully created'})
 
+@app.route('/meals/<int:id>', methods=['DELETE'])
+def delete_meal(id):
+  found_meal = Meal.query.get(id)
+
+  if not found_meal:
+    return jsonify({'message': 'Meal not found'})
+  
+  meal_does_not_belong_to_user = found_meal.user_id != current_user.id
+
+  if meal_does_not_belong_to_user:
+    return jsonify({'message': 'You are not allowed to delet other people`s meals'})
+  
+  db.session.delete(found_meal)
+  db.session.commit()
+
+  return jsonify({'message': 'Meal successfully deleted'})
 
 @app.route('/meals/<int:id>', methods=['PUT'])
 @login_required
